@@ -1,5 +1,6 @@
 // import { setupMapLibreGl } from "./maplibre-map";
-import { setupMapLibreTerrain } from "./maplibre-map-terrain";
+// import { setupMapLibreTerrain } from "./maplibre-map-terrain";
+import { setupMapLibrePlateau } from "./maplibre-map-plateau";
 import "./style.css";
 
 document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
@@ -11,4 +12,6 @@ const containerMap = document.querySelector<HTMLDivElement>("#map")!;
 
 // setupMapLibreGl(containerMap);
 
-setupMapLibreTerrain(containerMap);
+// setupMapLibreTerrain(containerMap);
+
+setupMapLibrePlateau(containerMap);
