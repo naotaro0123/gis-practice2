@@ -13,7 +13,11 @@
     "vite": "^6.0.5"
   },
   "dependencies": {
+    "deck.gl": "^8.9.36",
+    "loaders.gl": "^0.3.5",
+    "mapbox-gl": "^3.9.3",
     "maplibre-gl": "^5.0.0",
-    "pmtiles": "^4.1.0"
+    "pmtiles": "^4.1.0",
+    "react": "^19.0.0"
   }
 }

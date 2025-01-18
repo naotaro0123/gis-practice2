@@ -1,3 +1,7 @@
+import { MapboxOverlay } from "@deck.gl/mapbox";
+import { Tiles3DLoader } from "@loaders.gl/3d-tiles";
+import { Tile3DLayer } from "deck.gl";
+import "mapbox-gl/dist/mapbox-gl.css";
 import maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import * as pmtiles from "pmtiles";
@@ -290,4 +294,32 @@ export const setupMapLayer = (container: HTMLElement) => {
 
   const amxDaihyo = container.querySelector<HTMLInputElement>("#amx-a-daihyo")!;
   amxDaihyo.addEventListener("change", () => changeLayerVisibility(amxDaihyo));
+
+  // const mapboxglMap = new mapboxgl.Map({
+  //   container,
+  //   style: "mapbox://styles/mapbox/light-v9",
+  //   accessToken: "<mapbox_access_token>",
+  //   center: [0.45, 51.47],
+  //   zoom: 11,
+  // });
+
+  // deck.MapboxOverlayを生成する
+  map.once("load", () => {
+    const tile3dLayer = new MapboxOverlay({
+      id: "yokohama-3d-tile-layer",
+      interleaved: true,
+      layers: [
+        new Tile3DLayer({
+          id: "yokohama-3d-tile-layer",
+          type: Tile3DLayer,
+          data: "https://plateau.geospatial.jp/main/data/3d-tiles/bldg/14100_yokohama/low_resolution/tileset.json",
+          loader: Tiles3DLoader,
+          onTilesetLoad: (tileset) => {
+            console.log("tileset", tileset);
+          },
+        }),
+      ],
+    });
+    // mapboxglMap.addControl(tile3dLayer);
+  });
 };
