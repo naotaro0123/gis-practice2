@@ -172,7 +172,7 @@ export const setupMapLayer = (container: HTMLElement) => {
           },
         },
         {
-          id: "bldg",
+          id: "bldg-tokyo",
           type: "fill-extrusion",
           source: "plateau-bldg",
           // ベクタタイルソースから使用するレイヤ
@@ -224,6 +224,7 @@ export const setupMapLayer = (container: HTMLElement) => {
   });
 
   const changeLayerVisibility = (checkbox: HTMLInputElement) => {
+    console.log("##", map.getLayersOrder());
     if (checkbox.checked) {
       // チェックボックスのチェックがついた場合、レイヤを表示する
       map.setLayoutProperty(checkbox.id, "visibility", "visible");
@@ -248,8 +249,12 @@ export const setupMapLayer = (container: HTMLElement) => {
         <label for="hills">陰影起伏</label>
       </div>
       <div class="checkbox-container">
-        <input type="checkbox" id="bldg" class="checkbox" checked />
-        <label for="bldg">PLATEAU 東京都23区建物データ</label>
+        <input type="checkbox" id="bldg-tokyo" class="checkbox" checked />
+        <label for="bldg-tokyo">PLATEAU 東京都23区建物データ</label>
+      </div>
+      <div class="checkbox-container">
+        <input type="checkbox" id="bldg-yokohama" class="checkbox" checked />
+        <label for="bldg-yokohama">PLATEAU 横浜建物データ</label>
       </div>
       <div class="checkbox-container">
         <input type="checkbox" id="amx-a-fude-polygon" class="checkbox" checked />
@@ -276,8 +281,14 @@ export const setupMapLayer = (container: HTMLElement) => {
   const hills = container.querySelector<HTMLInputElement>("#hills")!;
   hills.addEventListener("change", () => changeLayerVisibility(hills));
 
-  const bldg = container.querySelector<HTMLInputElement>("#bldg")!;
-  bldg.addEventListener("change", () => changeLayerVisibility(bldg));
+  const bldgTokyo = container.querySelector<HTMLInputElement>("#bldg-tokyo")!;
+  bldgTokyo.addEventListener("change", () => changeLayerVisibility(bldgTokyo));
+
+  const bldgYokohama =
+    container.querySelector<HTMLInputElement>("#bldg-yokohama")!;
+  bldgYokohama.addEventListener("change", () =>
+    changeLayerVisibility(bldgYokohama)
+  );
 
   const amxFudePolygon = container.querySelector<HTMLInputElement>(
     "#amx-a-fude-polygon"
@@ -298,15 +309,16 @@ export const setupMapLayer = (container: HTMLElement) => {
   // deck.MapboxOverlayを生成する
   map.once("load", () => {
     const tile3dLayer = new MapboxOverlay({
-      id: "yokohama-3d-tile-layer",
+      id: "yokohama-3d-tile-layer", // これは使わないので適当で良い
       interleaved: true,
       layers: [
         new Tile3DLayer({
-          id: "yokohama-3d-tile-layer",
+          id: "bldg-yokohama",
           type: Tile3DLayer,
           data: "https://plateau.geospatial.jp/main/data/3d-tiles/bldg/14100_yokohama/low_resolution/tileset.json",
           loader: Tiles3DLoader,
           onTilesetLoad: (tileset) => {
+            // addControls後にこのイベントが走る
             console.log("tileset", tileset);
           },
         }),
