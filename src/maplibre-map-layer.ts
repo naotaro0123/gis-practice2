@@ -295,14 +295,6 @@ export const setupMapLayer = (container: HTMLElement) => {
   const amxDaihyo = container.querySelector<HTMLInputElement>("#amx-a-daihyo")!;
   amxDaihyo.addEventListener("change", () => changeLayerVisibility(amxDaihyo));
 
-  // const mapboxglMap = new mapboxgl.Map({
-  //   container,
-  //   style: "mapbox://styles/mapbox/light-v9",
-  //   accessToken: "<mapbox_access_token>",
-  //   center: [0.45, 51.47],
-  //   zoom: 11,
-  // });
-
   // deck.MapboxOverlayを生成する
   map.once("load", () => {
     const tile3dLayer = new MapboxOverlay({
@@ -320,6 +312,6 @@ export const setupMapLayer = (container: HTMLElement) => {
         }),
       ],
     });
-    // mapboxglMap.addControl(tile3dLayer);
+    map.addControl(tile3dLayer);
   });
 };
