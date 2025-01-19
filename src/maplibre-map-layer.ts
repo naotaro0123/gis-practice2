@@ -7,6 +7,79 @@ import "maplibre-gl/dist/maplibre-gl.css";
 import * as pmtiles from "pmtiles";
 import "./maplibre-map-layer.css";
 
+type Layer = { id: string; labelName: string };
+const layers: Layer[] = [
+  { id: "background-osm-raster", labelName: "OpenStreetMap" },
+  { id: "hills", labelName: "陰影起伏" },
+  { id: "bldg-tokyo", labelName: "PLATEAU 東京都23区建物データ" },
+  { id: "bldg-yokohama", labelName: "PLATEAU 横浜建物データ" },
+  {
+    id: "amx-a-fude-polygon",
+    labelName: "登記所備付地図データ 間引きなし（ポリゴン）",
+  },
+  {
+    id: "amx-a-fude-line",
+    labelName: "登記所備付地図データ 間引きなし（ライン）",
+  },
+  { id: "amx-a-daihyo", labelName: "登記所備付地図データ 代表点レイヤ" },
+];
+
+const createLayerElements = (container: HTMLElement, map: maplibregl.Map) => {
+  const layerControls = document.createElement("div");
+  layerControls.id = "layerControl";
+  layerControls.style.position = "absolute";
+  layerControls.style.top = "0";
+  layerControls.style.right = "0";
+
+  // ADD LAYER
+  {
+    const header = document.createElement("h3");
+    header.textContent = "レイヤ";
+    layerControls.appendChild(header);
+
+    for (const layer of layers) {
+      const checkboxContainer = document.createElement("div");
+      checkboxContainer.classList.add("checkbox-container");
+      const checkbox = document.createElement("input");
+      checkbox.type = "checkbox";
+      checkbox.id = layer.id;
+      checkbox.classList.add("checkbox");
+      checkbox.checked = true;
+      checkbox.addEventListener("change", () => {
+        const display = checkbox.checked ? "visible" : "none";
+        map.setLayoutProperty(checkbox.id, "visibility", display);
+      });
+      checkboxContainer.appendChild(checkbox);
+      const label = document.createElement("label");
+      label.htmlFor = layer.id;
+      label.textContent = layer.labelName;
+      checkboxContainer.appendChild(label);
+      layerControls.appendChild(checkboxContainer);
+    }
+    container.appendChild(layerControls);
+  }
+};
+
+const createDeckGlMapBoxOverlay = (): MapboxOverlay => {
+  const tile3dLayer = new MapboxOverlay({
+    id: "yokohama-3d-tile-layer", // これは使わないので適当で良い
+    interleaved: true,
+    layers: [
+      new Tile3DLayer({
+        id: "bldg-yokohama",
+        type: Tile3DLayer,
+        data: "https://plateau.geospatial.jp/main/data/3d-tiles/bldg/14100_yokohama/low_resolution/tileset.json",
+        loader: Tiles3DLoader,
+        onTilesetLoad: (tileset) => {
+          // addControls後にこのイベントが走る
+          console.log("tileset", tileset);
+        },
+      }),
+    ],
+  });
+  return tile3dLayer;
+};
+
 export const setupMapLayer = (container: HTMLElement) => {
   const protocol = new pmtiles.Protocol();
   maplibregl.addProtocol("pmtiles", protocol.tile);
@@ -223,107 +296,12 @@ export const setupMapLayer = (container: HTMLElement) => {
     },
   });
 
-  const changeLayerVisibility = (checkbox: HTMLInputElement) => {
-    console.log("##", map.getLayersOrder());
-    if (checkbox.checked) {
-      // チェックボックスのチェックがついた場合、レイヤを表示する
-      map.setLayoutProperty(checkbox.id, "visibility", "visible");
-    } else {
-      // チェックボックスのチェックが外れた場合、レイヤを非表示にする
-      map.setLayoutProperty(checkbox.id, "visibility", "none");
-    }
-  };
-  const layerControls = document.createElement("div");
-  layerControls.id = "layerControl";
-  layerControls.style.position = "absolute";
-  layerControls.style.top = "0";
-  layerControls.style.right = "0";
-  layerControls.innerHTML = `
-  <span>レイヤ</span>
-      <div class="checkbox-container">
-        <input type="checkbox" id="background-osm-raster" class="checkbox" checked />
-        <label for="background-osm-raster">OpenStreetMap</label>
-      </div>
-      <div class="checkbox-container">
-        <input type="checkbox" id="hills" class="checkbox" checked />
-        <label for="hills">陰影起伏</label>
-      </div>
-      <div class="checkbox-container">
-        <input type="checkbox" id="bldg-tokyo" class="checkbox" checked />
-        <label for="bldg-tokyo">PLATEAU 東京都23区建物データ</label>
-      </div>
-      <div class="checkbox-container">
-        <input type="checkbox" id="bldg-yokohama" class="checkbox" checked />
-        <label for="bldg-yokohama">PLATEAU 横浜建物データ</label>
-      </div>
-      <div class="checkbox-container">
-        <input type="checkbox" id="amx-a-fude-polygon" class="checkbox" checked />
-        <label for="amx-a-fude-polygon">登記所備付地図データ 間引きなし（ポリゴン）</label>
-      </div>
-      <div class="checkbox-container">
-        <input type="checkbox" id="amx-a-fude-line" class="checkbox" checked />
-        <label for="amx-a-fude-line">登記所備付地図データ 間引きなし（ライン）</label>
-      </div>
-      <div class="checkbox-container">
-        <input type="checkbox" id="amx-a-daihyo" class="checkbox" checked />
-        <label for="amx-a-daihyo">登記所備付地図データ 代表点レイヤ</label>
-      </div>
-  `;
-  container.appendChild(layerControls);
-
-  const backgroundOsmRaster = container.querySelector<HTMLInputElement>(
-    "#background-osm-raster"
-  )!;
-  backgroundOsmRaster.addEventListener("change", () =>
-    changeLayerVisibility(backgroundOsmRaster)
-  );
-
-  const hills = container.querySelector<HTMLInputElement>("#hills")!;
-  hills.addEventListener("change", () => changeLayerVisibility(hills));
-
-  const bldgTokyo = container.querySelector<HTMLInputElement>("#bldg-tokyo")!;
-  bldgTokyo.addEventListener("change", () => changeLayerVisibility(bldgTokyo));
-
-  const bldgYokohama =
-    container.querySelector<HTMLInputElement>("#bldg-yokohama")!;
-  bldgYokohama.addEventListener("change", () =>
-    changeLayerVisibility(bldgYokohama)
-  );
-
-  const amxFudePolygon = container.querySelector<HTMLInputElement>(
-    "#amx-a-fude-polygon"
-  )!;
-  amxFudePolygon.addEventListener("change", () =>
-    changeLayerVisibility(amxFudePolygon)
-  );
-
-  const amxFudeLine =
-    container.querySelector<HTMLInputElement>("#amx-a-fude-line")!;
-  amxFudeLine.addEventListener("change", () =>
-    changeLayerVisibility(amxFudeLine)
-  );
-
-  const amxDaihyo = container.querySelector<HTMLInputElement>("#amx-a-daihyo")!;
-  amxDaihyo.addEventListener("change", () => changeLayerVisibility(amxDaihyo));
+  // LayerのElementを生成する
+  createLayerElements(container, map);
 
   // deck.MapboxOverlayを生成する
   map.once("load", () => {
-    const tile3dLayer = new MapboxOverlay({
-      id: "yokohama-3d-tile-layer", // これは使わないので適当で良い
-      interleaved: true,
-      layers: [
-        new Tile3DLayer({
-          id: "bldg-yokohama",
-          type: Tile3DLayer,
-          data: "https://plateau.geospatial.jp/main/data/3d-tiles/bldg/14100_yokohama/low_resolution/tileset.json",
-          loader: Tiles3DLoader,
-          onTilesetLoad: (tileset) => {
-            // addControls後にこのイベントが走る
-            console.log("tileset", tileset);
-          },
-        }),
-      ],
-    });
+    const tile3dLayer = createDeckGlMapBoxOverlay();
     map.addControl(tile3dLayer);
   });
 };
