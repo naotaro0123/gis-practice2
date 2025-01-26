@@ -2,6 +2,7 @@ import { MapboxOverlay } from "@deck.gl/mapbox";
 import { Tiles3DLoader } from "@loaders.gl/3d-tiles";
 import { Tile3DLayer } from "deck.gl";
 import "mapbox-gl/dist/mapbox-gl.css";
+import mlcontour from "maplibre-contour";
 import maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import * as pmtiles from "pmtiles";
@@ -80,6 +81,15 @@ const createDeckGlMapBoxOverlay = (): MapboxOverlay => {
   return tile3dLayer;
 };
 
+const demSource = new mlcontour.DemSource({
+  url: "https://demotiles.maplibre.org/terrain-tiles/{z}/{x}/{y}.png",
+  encoding: "mapbox",
+  maxzoom: 12,
+  // offload contour line computation to a web worker
+  worker: true,
+});
+demSource.setupMaplibre(maplibregl);
+
 export const setupMapLayer = (container: HTMLElement) => {
   const protocol = new pmtiles.Protocol();
   maplibregl.addProtocol("pmtiles", protocol.tile);
@@ -91,6 +101,9 @@ export const setupMapLayer = (container: HTMLElement) => {
     zoom: 16,
     style: {
       version: 8,
+      // FIXME: 以下のサイトのコードをそのままコピーしただけでは404エラーになる
+      // https://maplibre.org/maplibre-gl-js/docs/examples/contour-lines/
+      glyphs: "https://demotiles.maplibre.org/font/{fontstack}/{range}.pbf",
       sources: {
         "background-osm-raster": {
           // ソースの種類。vector、raster、raster-dem、geojson、image、video のいずれか
@@ -154,6 +167,36 @@ export const setupMapLayer = (container: HTMLElement) => {
           maxzoom: 16,
           attribution:
             "<a href='https://github.com/indigo-lab/plateau-lod2-mvt'>plateau-lod2-mvt by indigo-lab</a> (<a href='https://www.mlit.go.jp/plateau/'>国土交通省 Project PLATEAU</a> のデータを加工して作成)",
+        },
+        // 標高タイルで等高線を描画する
+        hillshadeSource: {
+          type: "raster-dem",
+          // share cached raster-dem tiles with the contour source
+          tiles: [demSource.sharedDemProtocolUrl],
+          tileSize: 512,
+          maxzoom: 12,
+        },
+        contourSourceFeet: {
+          type: "vector",
+          tiles: [
+            demSource.contourProtocolUrl({
+              // meters to feet
+              multiplier: 3.28084,
+              overzoom: 1,
+              thresholds: {
+                // zoom: [minor, major]
+                11: [200, 1000],
+                12: [100, 500],
+                13: [100, 500],
+                14: [50, 200],
+                15: [20, 100],
+              },
+              elevationKey: "ele",
+              levelKey: "level",
+              contourLayer: "contours",
+            }),
+          ],
+          maxzoom: 15,
         },
       },
       layers: [
@@ -257,6 +300,45 @@ export const setupMapLayer = (container: HTMLElement) => {
             "fill-extrusion-color": "#797979",
             // 透明度
             "fill-extrusion-opacity": 0.7,
+          },
+        },
+        {
+          id: "hillshadeSource",
+          type: "hillshade",
+          source: "hillshadeSource",
+          layout: { visibility: "visible" },
+          paint: { "hillshade-exaggeration": 0.25 },
+        },
+        {
+          id: "contours",
+          type: "line",
+          source: "contourSourceFeet",
+          "source-layer": "contours",
+          paint: {
+            "line-opacity": 0.5,
+            // "major" contours have level=1, "minor" have level=0
+            "line-width": ["match", ["get", "level"], 1, 1, 0.5],
+          },
+        },
+        {
+          id: "contour-text",
+          type: "symbol",
+          source: "contourSourceFeet",
+          "source-layer": "contours",
+          filter: [">", ["get", "level"], 0],
+          paint: {
+            "text-halo-color": "white",
+            "text-halo-width": 1,
+          },
+          layout: {
+            "symbol-placement": "line",
+            "text-size": 10,
+            "text-field": [
+              "concat",
+              ["number-format", ["get", "ele"], {}],
+              "'",
+            ],
+            "text-font": ["Noto Sans Bold"],
           },
         },
       ],
