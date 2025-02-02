@@ -96,7 +96,8 @@ export const setupMapLayer = (container: HTMLElement) => {
 
   const map = new maplibregl.Map({
     container,
-    center: [139.4894, 35.339],
+    center: [139.4894, 35.339], // 藤沢の緯度経度だと標高のラインが404エラーになる
+    // center: [11.3229, 47.2738],
     maxPitch: 80,
     zoom: 16,
     style: {
@@ -185,11 +186,11 @@ export const setupMapLayer = (container: HTMLElement) => {
               overzoom: 1,
               thresholds: {
                 // zoom: [minor, major]
-                11: [200, 1000],
-                12: [100, 500],
-                13: [100, 500],
-                14: [50, 200],
-                15: [20, 100],
+                // 11: [200, 1000],
+                // 12: [100, 500],
+                // 13: [100, 500],
+                // 14: [50, 200],
+                // 15: [20, 100],
               },
               elevationKey: "ele",
               levelKey: "level",
