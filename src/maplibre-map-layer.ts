@@ -82,7 +82,10 @@ const createDeckGlMapBoxOverlay = (): MapboxOverlay => {
 };
 
 const demSource = new mlcontour.DemSource({
-  url: "https://demotiles.maplibre.org/terrain-tiles/{z}/{x}/{y}.png",
+  // FIXME: 以下のサイトのコードをそのままコピーしただけでは404エラーになる
+  // https://maplibre.org/maplibre-gl-js/docs/examples/contour-lines/
+  // url: "https://demotiles.maplibre.org/terrain-tiles/{z}/{x}/{y}.png",
+  url: "https://cyberjapandata.gsi.go.jp/xyz/dem_png/{z}/{x}/{y}.png",
   encoding: "mapbox",
   maxzoom: 12,
   // offload contour line computation to a web worker
@@ -104,8 +107,6 @@ export const setupMapLayer = (container: HTMLElement) => {
     zoom: 10,
     style: {
       version: 8,
-      // FIXME: 以下のサイトのコードをそのままコピーしただけでは404エラーになる
-      // https://maplibre.org/maplibre-gl-js/docs/examples/contour-lines/
       glyphs: "https://demotiles.maplibre.org/font/{fontstack}/{range}.pbf",
       sources: {
         "background-osm-raster": {
@@ -121,6 +122,7 @@ export const setupMapLayer = (container: HTMLElement) => {
           attribution:
             "<a href='https://www.openstreetmap.org/copyright' target='_blank'>© OpenStreetMap contributors</a>",
         },
+
         // 地形データ
         "aws-terrain": {
           type: "raster-dem",
@@ -148,6 +150,7 @@ export const setupMapLayer = (container: HTMLElement) => {
           United Kingdom terrain data © Environment Agency copyright and/or database right 2015. All rights reserved;\
           United States 3DEP (formerly NED) and global GMTED2010 and SRTM terrain data courtesy of the U.S. Geological Survey.",
         },
+
         // 登記所備付地図
         "amx-a-pmtiles": {
           type: "vector",
@@ -179,6 +182,8 @@ export const setupMapLayer = (container: HTMLElement) => {
           tileSize: 512,
           maxzoom: 12,
         },
+
+        // 等高線
         contourSourceFeet: {
           type: "vector",
           tiles: [
@@ -212,12 +217,14 @@ export const setupMapLayer = (container: HTMLElement) => {
           // データソースの指定
           source: "background-osm-raster",
         },
+
         // 陰影起伏
         {
           id: "hills",
           type: "hillshade",
           source: "aws-terrain",
         },
+
         // 登記所備付地図データ 間引きなし
         {
           id: "amx-a-fude-polygon",
@@ -235,6 +242,7 @@ export const setupMapLayer = (container: HTMLElement) => {
             "fill-opacity": 0.4,
           },
         },
+
         // 登記所備付地図データ 間引きなし
         // NOTE: 3D Terrainを表示すると、fill-outline-colorが効かない不具合が起きる
         // そのため、lineレイヤを追加する
@@ -250,6 +258,7 @@ export const setupMapLayer = (container: HTMLElement) => {
             "line-width": 0.1,
           },
         },
+
         // 登記所備付地図データ 代表点レイヤ
         {
           id: "amx-a-daihyo",
@@ -290,6 +299,8 @@ export const setupMapLayer = (container: HTMLElement) => {
             ],
           },
         },
+
+        // PLATEAU 東京都23区建物データ
         {
           id: "bldg-tokyo",
           type: "fill-extrusion",
@@ -305,13 +316,16 @@ export const setupMapLayer = (container: HTMLElement) => {
             "fill-extrusion-opacity": 0.7,
           },
         },
-        {
-          id: "hillshadeSource",
-          type: "hillshade",
-          source: "hillshadeSource",
-          layout: { visibility: "visible" },
-          paint: { "hillshade-exaggeration": 0.25 },
-        },
+
+        // 等高線
+        // {
+        //   id: "hillshadeSource",
+        //   type: "hillshade",
+        //   source: "hillshadeSource",
+        //   layout: { visibility: "visible" },
+        //   paint: { "hillshade-exaggeration": 0.25 },
+        // },
+
         {
           id: "contours",
           type: "line",
@@ -323,6 +337,7 @@ export const setupMapLayer = (container: HTMLElement) => {
             "line-width": ["match", ["get", "level"], 1, 1, 0.5],
           },
         },
+
         {
           id: "contour-text",
           type: "symbol",
