@@ -96,10 +96,12 @@ export const setupMapLayer = (container: HTMLElement) => {
 
   const map = new maplibregl.Map({
     container,
-    center: [139.4894, 35.339], // 藤沢の緯度経度だと標高のラインが404エラーになる
+    center: [138.4339, 35.2139], // 富士山
+    // center: [139.4894, 35.339], // 藤沢の緯度経度だと標高のラインが404エラーになる
     // center: [11.3229, 47.2738],
     maxPitch: 80,
-    zoom: 16,
+    // zoom: 16,
+    zoom: 10,
     style: {
       version: 8,
       // FIXME: 以下のサイトのコードをそのままコピーしただけでは404エラーになる
