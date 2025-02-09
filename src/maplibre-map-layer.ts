@@ -34,8 +34,21 @@ const createLayerElements = (container: HTMLElement, map: maplibregl.Map) => {
 
   // ADD LAYER
   {
-    const header = document.createElement("h3");
-    header.textContent = "レイヤ";
+    const header = document.createElement("div");
+    header.style.display = "flex";
+    header.style.alignItems = "center";
+
+    const headerText = document.createElement("h3");
+    headerText.style.marginRight = "10px";
+    headerText.textContent = "レイヤ";
+    header.appendChild(headerText);
+
+    const zoom = document.createElement("div");
+    zoom.style.fontSize = "16px";
+    zoom.id = "zoomLabel";
+    zoom.textContent = `zoom: ${map.getZoom()}`;
+    header.appendChild(zoom);
+
     layerControls.appendChild(header);
 
     for (const layer of layers) {
@@ -193,11 +206,14 @@ export const setupMapLayer = (container: HTMLElement) => {
               overzoom: 1,
               thresholds: {
                 // zoom: [minor, major]
-                // 11: [200, 1000],
-                // 12: [100, 500],
-                // 13: [100, 500],
-                // 14: [50, 200],
-                // 15: [20, 100],
+                //   major: 標高の値を表示するメジャーな等高線
+                //   minor: 標高の値を表示しないマイナーな等高線
+                //   zoomはズームレベルで上記値が適用される
+                11: [1000, 1000],
+                12: [500, 1000],
+                13: [500, 1000],
+                14: [200, 1000],
+                15: [200, 1000],
               },
               elevationKey: "ele",
               levelKey: "level",
@@ -318,13 +334,13 @@ export const setupMapLayer = (container: HTMLElement) => {
         },
 
         // 等高線
-        // {
-        //   id: "hillshadeSource",
-        //   type: "hillshade",
-        //   source: "hillshadeSource",
-        //   layout: { visibility: "visible" },
-        //   paint: { "hillshade-exaggeration": 0.25 },
-        // },
+        {
+          id: "hillshadeSource",
+          type: "hillshade",
+          source: "hillshadeSource",
+          layout: { visibility: "visible" },
+          paint: { "hillshade-exaggeration": 0.25 },
+        },
 
         {
           id: "contours",
@@ -403,5 +419,10 @@ export const setupMapLayer = (container: HTMLElement) => {
   map.once("load", () => {
     const tile3dLayer = createDeckGlMapBoxOverlay();
     map.addControl(tile3dLayer);
+  });
+  map.on("zoom", () => {
+    const zoom = document.getElementById("zoomLabel");
+    if (!zoom) return;
+    zoom.textContent = `zoom: ${map.getZoom().toFixed(3)}`;
   });
 };
