@@ -15,7 +15,7 @@
   "dependencies": {
     "deck.gl": "^8.9.36",
     "loaders.gl": "^0.3.5",
-    "mapbox-gl": "^3.9.4",
+    "mapbox-gl": "^3.10.0",
     "maplibre-contour": "^0.1.0",
     "maplibre-gl": "^5.1.0",
     "pmtiles": "^4.1.0",
