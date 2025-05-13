@@ -1,9 +1,32 @@
+import { AxiosRequestConfig } from "axios";
 import "mapbox-gl/dist/mapbox-gl.css";
 import mlcontour from "maplibre-contour";
 import maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import * as pmtiles from "pmtiles";
 import "./maplibre-map-layer.css";
+
+// 高尾山のクエリ
+const queryApiUrl =
+  "https://hiking.waymarkedtrails.org/api/v1/list/search?query=";
+
+const createGetAPIButton = (containter: HTMLElement) => {
+  const button = document.createElement("button");
+  button.innerText = "Get API";
+  button.style.position = "absolute";
+  button.style.top = "10px";
+  button.style.right = "10px";
+  button.style.zIndex = "1";
+  button.onclick = () => {
+    // TODO: axiosでAPIを叩く
+    const options: AxiosRequestConfig = {
+      url: `${queryApiUrl}/高尾山`,
+      method: "GET",
+    };
+    console.log("options", options);
+  };
+  containter.appendChild(button);
+};
 
 const demSource = new mlcontour.DemSource({
   // FIXME: 以下のサイトのコードをそのままコピーしただけでは404エラーになる
@@ -208,4 +231,6 @@ export const setupMapLayer = (container: HTMLElement) => {
       },
     },
   });
+
+  createGetAPIButton(container);
 };
