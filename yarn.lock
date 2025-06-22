@@ -1368,10 +1368,10 @@ long@^5.2.1:
   resolved "https://registry.yarnpkg.com/long/-/long-5.2.4.tgz#ee651d5c7c25901cfca5e67220ae9911695e99b2"
   integrity sha512-qtzLbJE8hq7VabR3mISmVGtoXP8KGc2Z/AT8OuqlYD7JTR3oqrgwdjnk07wpj1twXxYmgDXgoKVWUG/fReSzHg==
 
-mapbox-gl@^3.12.0:
-  version "3.12.0"
-  resolved "https://registry.yarnpkg.com/mapbox-gl/-/mapbox-gl-3.12.0.tgz#4e706124fb60e8a32709c2ecaaff54eeadbcaf7f"
-  integrity sha512-DV6TRr+xoPrLSKuGiUcbyLVkoLdNaNNpn6O7+ZC27yQH7BOOIF7l6JKbTCMhfMJuZBVJfL8YRJjlMJ6MZCTggA==
+mapbox-gl@^3.13.0:
+  version "3.13.0"
+  resolved "https://registry.yarnpkg.com/mapbox-gl/-/mapbox-gl-3.13.0.tgz#62f1443ebcf3a6d43f74cacb2f1697995e0e60b7"
+  integrity sha512-TSSJIvDKsiSPk22889FWk9V4mmjljbizUf8Y2Jhho2j0Mj4zonC6kKwoVLf3oGqYWTZ+oQrd0Cxg6LCmZmPPbQ==
   dependencies:
     "@mapbox/jsonlint-lines-primitives" "^2.0.2"
     "@mapbox/mapbox-gl-supported" "^3.0.0"
